@@ -1,3 +1,12 @@
+## linux开发流程
+
+For x86
+
+```
+make weichao_x86_64_defconfig
+```
+如果要保存.config，写到 `arch/x86/configs/weichao_x86_64_defconfig`
+
 Linux kernel
 ============
 

@@ -103,6 +103,7 @@ modules.order
 !.kunitconfig
 !.mailmap
 !.rustfmt.toml
+!.vscode
 
 #
 # Generated include files
