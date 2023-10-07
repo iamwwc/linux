@@ -212,10 +212,12 @@ static int mt7921_dma_init(struct mt792x_dev *dev)
 	if (ret)
 		return ret;
 
+	// 注册kernel rx回调
 	ret = mt76_init_queues(dev, mt792x_poll_rx);
 	if (ret < 0)
 		return ret;
 
+	// 注册napi tx回调
 	netif_napi_add_tx(&dev->mt76.tx_napi_dev, &dev->mt76.tx_napi,
 			  mt792x_poll_tx);
 	napi_enable(&dev->mt76.tx_napi);
@@ -356,6 +358,7 @@ static int mt7921_pci_probe(struct pci_dev *pdev,
 
 	mt76_wr(dev, MT_PCIE_MAC_INT_ENABLE, 0xff);
 
+	// 设置硬件中断回调
 	ret = devm_request_irq(mdev->dev, pdev->irq, mt792x_irq_handler,
 			       IRQF_SHARED, KBUILD_MODNAME, dev);
 	if (ret)

@@ -8,6 +8,7 @@
 #include "dma.h"
 #include "trace.h"
 
+// 硬件中断回调
 irqreturn_t mt792x_irq_handler(int irq, void *dev_instance)
 {
 	// 收到硬件中断，收到包
@@ -18,13 +19,15 @@ irqreturn_t mt792x_irq_handler(int irq, void *dev_instance)
 
 	if (!test_bit(MT76_STATE_INITIALIZED, &dev->mphy.state))
 		return IRQ_NONE;
-
+	// 关闭硬件中断
+	// 调度软中断执行剩下的逻辑（napi polling）
 	tasklet_schedule(&dev->mt76.irq_tasklet);
 
 	return IRQ_HANDLED;
 }
 EXPORT_SYMBOL_GPL(mt792x_irq_handler);
 
+// 软中断回调
 void mt792x_irq_tasklet(unsigned long data)
 {
 	struct mt792x_dev *dev = (struct mt792x_dev *)data;
@@ -59,9 +62,14 @@ void mt792x_irq_tasklet(unsigned long data)
 
 	mt76_set_irq_mask(&dev->mt76, irq_map->host_irq_enable, mask, 0);
 
+	// 判断中断类型
+	
+	// tx中断，kernel有包要发送
 	if (intr & dev->irq_map->tx.all_complete_mask)
+		// 调度napi polling
 		napi_schedule(&dev->mt76.tx_napi);
 
+	// rx中断，网卡收到包，需要处理提交给kernel
 	if (intr & irq_map->rx.wm_complete_mask)
 		napi_schedule(&dev->mt76.napi[MT_RXQ_MCU]);
 
@@ -288,6 +296,7 @@ void mt792x_dma_cleanup(struct mt792x_dev *dev)
 }
 EXPORT_SYMBOL_GPL(mt792x_dma_cleanup);
 
+// napi tx polling 回调
 int mt792x_poll_tx(struct napi_struct *napi, int budget)
 {
 	struct mt792x_dev *dev;
