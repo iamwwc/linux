@@ -801,6 +801,7 @@ mt76_add_fragment(struct mt76_dev *dev, struct mt76_queue *q, void *data,
 		dev_kfree_skb(skb);
 }
 
+// 从DMA提取data，组装skb
 static int
 mt76_dma_rx_process(struct mt76_dev *dev, struct mt76_queue *q, int budget)
 {
@@ -895,7 +896,9 @@ int mt76_dma_rx_poll(struct napi_struct *napi, int budget)
 	rcu_read_lock();
 
 	do {
+		// 从 dma buffer提取收到的data，组装成skb
 		cur = mt76_dma_rx_process(dev, &dev->q_rx[qid], budget - done);
+		// 继续处理，最终调用 mt76_rx_complete，从driver提交到kernel协议栈
 		mt76_rx_poll_complete(dev, qid, napi);
 		done += cur;
 	} while (cur && done < budget);
@@ -903,8 +906,9 @@ int mt76_dma_rx_poll(struct napi_struct *napi, int budget)
 	rcu_read_unlock();
 
 	if (done < budget && napi_complete(napi))
-		// call mt792x_rx_poll_complete
-		// 重新开启中断
+		// 回调 mt792x_rx_poll_complete，重新开启中断
+		// mt7921 大多数逻辑都在mt76
+		// 猜测多个mt76x芯片共用mt76平台
 		dev->drv->rx_poll_complete(dev, qid);
 
 	return done;

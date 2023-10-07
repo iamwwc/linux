@@ -1320,6 +1320,8 @@ mt76_check_sta(struct mt76_dev *dev, struct sk_buff *skb)
 	ieee80211_sta_ps_transition(sta, ps);
 }
 
+// rx流程最后的驱动代码
+// 此函数将skb通过napi提交kernel协议栈
 void mt76_rx_complete(struct mt76_dev *dev, struct sk_buff_head *frames,
 		      struct napi_struct *napi)
 {
@@ -1349,11 +1351,13 @@ void mt76_rx_complete(struct mt76_dev *dev, struct sk_buff_head *frames,
 	}
 	spin_unlock(&dev->rx_lock);
 
+	// 如果调用不是来自napi，直接提交
 	if (!napi) {
 		netif_receive_skb_list(&list);
 		return;
 	}
 
+	// napi调用，先走gro，多skb合并，减少走协议栈的次数，算是优化
 	list_for_each_entry_safe(skb, tmp, &list, list) {
 		skb_list_del_init(skb);
 		napi_gro_receive(napi, skb);

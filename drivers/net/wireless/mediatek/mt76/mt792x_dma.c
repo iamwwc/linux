@@ -320,6 +320,7 @@ int mt792x_poll_tx(struct napi_struct *napi, int budget)
 }
 EXPORT_SYMBOL_GPL(mt792x_poll_tx);
 
+// napi rx polling 回调
 int mt792x_poll_rx(struct napi_struct *napi, int budget)
 {
 	struct mt792x_dev *dev;
@@ -332,6 +333,7 @@ int mt792x_poll_rx(struct napi_struct *napi, int budget)
 		queue_work(dev->mt76.wq, &dev->pm.wake_work);
 		return 0;
 	}
+	// 从DMA ring buffer提取skb
 	done = mt76_dma_rx_poll(napi, budget);
 	mt76_connac_pm_unref(&dev->mphy, &dev->pm);
 
