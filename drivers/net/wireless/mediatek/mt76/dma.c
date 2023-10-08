@@ -903,6 +903,8 @@ int mt76_dma_rx_poll(struct napi_struct *napi, int budget)
 	rcu_read_unlock();
 
 	if (done < budget && napi_complete(napi))
+		// call mt792x_rx_poll_complete
+		// 重新开启中断
 		dev->drv->rx_poll_complete(dev, qid);
 
 	return done;

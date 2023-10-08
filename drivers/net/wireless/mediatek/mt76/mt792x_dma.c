@@ -10,6 +10,8 @@
 
 irqreturn_t mt792x_irq_handler(int irq, void *dev_instance)
 {
+	// 收到硬件中断，收到包
+	// 调用软中断
 	struct mt792x_dev *dev = dev_instance;
 
 	mt76_wr(dev, dev->irq_map->host_irq_enable, 0);
@@ -28,7 +30,7 @@ void mt792x_irq_tasklet(unsigned long data)
 	struct mt792x_dev *dev = (struct mt792x_dev *)data;
 	const struct mt792x_irq_map *irq_map = dev->irq_map;
 	u32 intr, mask = 0;
-
+	// 关闭中断，调用napi去poll
 	mt76_wr(dev, irq_map->host_irq_enable, 0);
 
 	intr = mt76_rr(dev, MT_WFDMA0_HOST_INT_STA);
@@ -73,6 +75,7 @@ EXPORT_SYMBOL_GPL(mt792x_irq_tasklet);
 
 void mt792x_rx_poll_complete(struct mt76_dev *mdev, enum mt76_rxq_id q)
 {
+	// 一次接受结束，重新开启中断
 	struct mt792x_dev *dev = container_of(mdev, struct mt792x_dev, mt76);
 	const struct mt792x_irq_map *irq_map = dev->irq_map;
 
@@ -299,6 +302,7 @@ int mt792x_poll_tx(struct napi_struct *napi, int budget)
 
 	mt76_connac_tx_cleanup(&dev->mt76);
 	if (napi_complete(napi))
+	// 重新开启中断
 		mt76_connac_irq_enable(&dev->mt76,
 				       dev->irq_map->tx.all_complete_mask);
 	mt76_connac_pm_unref(&dev->mphy, &dev->pm);
