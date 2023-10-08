@@ -12,7 +12,16 @@ make weichao_x86_64_defconfig
 
 ```bash
 make ARCH=arm64 linux_sunxi64_defconfig
+make ARCH=arm64 -j$(nproc)
 ```
+
+**不要少了`ARCH=xx`，否则make编译会重新弹propmt**
+
+> https://stackoverflow.com/questions/50405217/make-kernel-prompting-for-config-options-even-when-config-is-present
+
+在x86机器上编译arm架构的kernel需要配置交叉编译环境，否则编译会失败
+
+用buildroot编译会自动构建arm的编译器套件
 
 ### 保存.config
 
