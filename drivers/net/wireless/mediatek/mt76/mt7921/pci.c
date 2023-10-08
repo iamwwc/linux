@@ -213,6 +213,7 @@ static int mt7921_dma_init(struct mt792x_dev *dev)
 		return ret;
 
 	// 注册kernel rx回调
+	// 调用到 mt76_dma_init
 	ret = mt76_init_queues(dev, mt792x_poll_rx);
 	if (ret < 0)
 		return ret;
@@ -320,6 +321,7 @@ static int mt7921_pci_probe(struct pci_dev *pdev,
 	dev->hif_ops = &mt7921_pcie_ops;
 	dev->irq_map = &irq_map;
 	mt76_mmio_init(&dev->mt76, pcim_iomap_table(pdev)[0]);
+	// 软中断回调
 	tasklet_init(&mdev->irq_tasklet, mt792x_irq_tasklet, (unsigned long)dev);
 
 	dev->phy.dev = dev;

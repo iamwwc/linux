@@ -618,6 +618,7 @@ mt76_dma_rx_fill(struct mt76_dev *dev, struct mt76_queue *q,
 		qbuf.addr = addr + q->buf_offset;
 		qbuf.len = len - q->buf_offset;
 		qbuf.skip_unmap = false;
+		// 创建buffer，驱动将收到的数据写到这里
 		if (mt76_dma_add_rx_buf(dev, q, &qbuf, buf) < 0) {
 			mt76_put_page_pool_buf(buf, allow_direct);
 			break;
@@ -626,6 +627,9 @@ mt76_dma_rx_fill(struct mt76_dev *dev, struct mt76_queue *q,
 	}
 
 	if (frames)
+		// 将分配好的buffer写到网卡设备寄存器
+		// 网卡将收到的数据存于此
+		// 再触发硬件中断
 		mt76_dma_kick_queue(dev, q);
 
 	spin_unlock_bh(&q->lock);
@@ -920,7 +924,7 @@ mt76_dma_init(struct mt76_dev *dev,
 	      int (*poll)(struct napi_struct *napi, int budget))
 {
 	int i;
-
+	
 	init_dummy_netdev(&dev->napi_dev);
 	init_dummy_netdev(&dev->tx_napi_dev);
 	snprintf(dev->napi_dev.name, sizeof(dev->napi_dev.name), "%s",
@@ -930,6 +934,7 @@ mt76_dma_init(struct mt76_dev *dev,
 	init_completion(&dev->mmio.wed_reset_complete);
 
 	mt76_for_each_q_rx(dev, i) {
+		// poll是 mt792x_poll_rx
 		netif_napi_add(&dev->napi_dev, &dev->napi[i], poll);
 		mt76_dma_rx_fill(dev, &dev->q_rx[i], false);
 		napi_enable(&dev->napi[i]);
@@ -938,6 +943,7 @@ mt76_dma_init(struct mt76_dev *dev,
 	return 0;
 }
 
+// DMA buffer queue 相关的操作
 static const struct mt76_queue_ops mt76_dma_ops = {
 	.init = mt76_dma_init,
 	.alloc = mt76_dma_alloc_queue,
