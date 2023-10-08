@@ -607,10 +607,12 @@ mt76_dma_rx_fill(struct mt76_dev *dev, struct mt76_queue *q,
 		int offset;
 		void *buf;
 
+		// 分配内存页
 		buf = mt76_get_page_pool_buf(q, &offset, q->buf_size);
 		if (!buf)
 			break;
-
+		// virt_to_page 将虚拟内存转换为对应物理内存的页表号
+		// 再转换为dma地址
 		addr = page_pool_get_dma_addr(virt_to_head_page(buf)) + offset;
 		dir = page_pool_get_dma_dir(q->page_pool);
 		dma_sync_single_for_device(dev->dma_dev, addr, len, dir);

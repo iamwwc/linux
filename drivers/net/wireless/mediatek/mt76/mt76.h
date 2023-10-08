@@ -187,6 +187,7 @@ struct mt76_queue {
 	struct mt76_desc *desc;
 
 	u16 first;
+	// dma buffer 头
 	u16 head;
 	u16 tail;
 	int ndesc;
