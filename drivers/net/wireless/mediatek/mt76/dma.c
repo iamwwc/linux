@@ -270,7 +270,7 @@ mt76_dma_add_buf(struct mt76_dev *dev, struct mt76_queue *q,
 		q->entry[q->head].txwi = DMA_DUMMY_DATA;
 		q->entry[q->head].skip_buf0 = true;
 	}
-
+	// 将 mt76_desc串成链表
 	for (i = 0; i < nbufs; i += 2, buf += 2) {
 		u32 buf0 = buf[0].addr, buf1 = 0;
 

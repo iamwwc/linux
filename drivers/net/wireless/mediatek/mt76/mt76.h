@@ -188,6 +188,7 @@ struct mt76_queue {
 
 	u16 first;
 	// dma buffer 头
+	// head是 struct mt76_desc 的链表
 	u16 head;
 	u16 tail;
 	int ndesc;
@@ -201,7 +202,9 @@ struct mt76_queue {
 	u8 flags;
 
 	u32 wed_regs;
-
+	// 硬件/驱动都能访问的DMA地址
+	// 存放DMA desc
+	// 调用dmam_alloc_coherent分配
 	dma_addr_t desc_dma;
 	struct sk_buff *rx_head;
 	struct page_pool *page_pool;
