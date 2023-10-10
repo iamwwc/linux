@@ -183,8 +183,12 @@ EXPORT_SYMBOL_GPL(mt76_free_pending_rxwi);
 static void
 mt76_dma_sync_idx(struct mt76_dev *dev, struct mt76_queue *q)
 {
+	// 将DMA desc写入device寄存器
 	Q_WRITE(dev, q, desc_base, q->desc_dma);
 	Q_WRITE(dev, q, ring_size, q->ndesc);
+	// device 控制head
+	// 驱动控制tail
+	// 从device寄存器获取head
 	q->head = Q_READ(dev, q, dma_idx);
 	q->tail = q->head;
 }
@@ -206,6 +210,7 @@ mt76_dma_queue_reset(struct mt76_dev *dev, struct mt76_queue *q)
 	mt76_dma_sync_idx(dev, q);
 }
 
+// 将新的buffer加入dma buffer poll
 static int
 mt76_dma_add_rx_buf(struct mt76_dev *dev, struct mt76_queue *q,
 		    struct mt76_queue_buf *buf, void *data)
@@ -238,7 +243,7 @@ mt76_dma_add_rx_buf(struct mt76_dev *dev, struct mt76_queue *q,
 	WRITE_ONCE(desc->buf1, cpu_to_le32(buf1));
 	WRITE_ONCE(desc->ctrl, cpu_to_le32(ctrl));
 	WRITE_ONCE(desc->info, 0);
-
+	// buffer地址添加到DMA descriptor ring
 	entry->dma_addr[0] = buf->addr;
 	entry->dma_len[0] = buf->len;
 	entry->txwi = txwi;
@@ -338,6 +343,7 @@ static void
 mt76_dma_kick_queue(struct mt76_dev *dev, struct mt76_queue *q)
 {
 	wmb();
+	// 将DMA buffer head写到设备寄存器
 	Q_WRITE(dev, q, cpu_idx, q->head);
 }
 
@@ -469,6 +475,8 @@ mt76_dma_tx_queue_skb_raw(struct mt76_dev *dev, struct mt76_queue *q,
 	if (q->queued + 1 >= q->ndesc - 1)
 		goto error;
 
+	// skb->data存放收到的数据
+	// 将这一块地址map成DMA地址
 	addr = dma_map_single(dev->dma_dev, skb->data, skb->len,
 			      DMA_TO_DEVICE);
 	if (unlikely(dma_mapping_error(dev->dma_dev, addr)))
@@ -478,7 +486,9 @@ mt76_dma_tx_queue_skb_raw(struct mt76_dev *dev, struct mt76_queue *q,
 	buf.len = skb->len;
 
 	spin_lock_bh(&q->lock);
+	// 添加到DMA descriptor ring
 	mt76_dma_add_buf(dev, q, &buf, 1, tx_info, skb, NULL);
+	// 更新后的descriptor ring写入device寄存器
 	mt76_dma_kick_queue(dev, q);
 	spin_unlock_bh(&q->lock);
 
@@ -834,7 +844,8 @@ mt76_dma_rx_process(struct mt76_dev *dev, struct mt76_queue *q, int budget)
 			if (q->tail == dma_idx)
 				break;
 		}
-
+		// 从DMA desc ring tail取走存有数据的buffer
+		// 这块buffer其实是skb->data
 		data = mt76_dma_dequeue(dev, q, false, &len, &info, &more,
 					&drop);
 		if (!data)
