@@ -18,7 +18,7 @@
                 "--kernel",
                 "./arch/x86_64/boot/bzImage",
                 "-initrd",
-                "./rootfs.cpio",
+                "${workspaceFolder}/../buildroot/output/images/rootfs.cpio",
                 "-device",
                 "e1000,netdev=eth0",
                 "-netdev",
