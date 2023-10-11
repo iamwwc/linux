@@ -23,11 +23,16 @@ make ARCH=arm64 -j$(nproc)
 
 用buildroot编译会自动构建arm的编译器套件
 
-### 保存.config
+### x86保存.config
 
-x86为例
 
 ```bash
 make savedefconfig
 cp defconfig arch/x86/configs/weichao_x86_64_defconfig
+```
+
+调试
+
+```bash
+qemu-system-x86_64 --kernel ./arch/x86/boot/bzImage -initrd ./rootfs.cpio -device e1000,netdev=eth0 -netdev user,id=eth0,hostfwd=tcp::5555-:22,net=192.168.76.0/24,dhcpstart=192.168.76.9  -append "nokaslr console=ttyS0" -S -nographic -gdb tcp::1234 -virtfs local,path=/,security_model=none,mount_tag=guestroot
 ```
