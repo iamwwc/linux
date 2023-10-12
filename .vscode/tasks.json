@@ -7,13 +7,29 @@
             "label": "stop qemu",
             "type": "shell",
             "command": "pkill qemu-system-x86_64 -f",
-            "problemMatcher": []
+            "problemMatcher": [],
+            // https://stackoverflow.com/questions/47946868/how-to-get-rid-of-terminal-will-be-reused-by-tasks-press-any-key-to-close-it
+            // 自动关闭task
+            // 不显示 Terminal will be reused by tasks, press any key to close it
+            "presentation": {
+                "reveal": "silent",
+                "revealProblems": "onProblem",
+                "close": true
+            }
         },
         {
             "label": "start qemu",
             "type": "process",
             "isBackground": true,
             "command": "qemu-system-x86_64",
+            // https://stackoverflow.com/questions/47946868/how-to-get-rid-of-terminal-will-be-reused-by-tasks-press-any-key-to-close-it
+            // 自动关闭task
+            // 不显示 Terminal will be reused by tasks, press any key to close it
+            "presentation": {
+                "reveal": "silent",
+                "revealProblems": "onProblem",
+                "close": true
+            },
             "args": [
                 "--kernel",
                 "./arch/x86_64/boot/bzImage",
@@ -30,7 +46,7 @@
                 "-gdb",
                 "tcp::1234",
                 "-virtfs",
-                "local,path=/,security_model=none,mount_tag=guestroot",
+                "local,path=/,security_model=none,mount_tag=guestroot"
                 // 调试 mt7921 驱动
                 // "-usb",
                 // "-device",
