@@ -479,6 +479,8 @@ void __init prepare_namespace(void)
 	md_run_setup();
 
 	if (saved_root_name[0])
+		// 挂载的设备，比如/dev/ram
+		// rootfs已经从磁盘读到了内存，放在/dev/ram表示的内存文件系统
 		ROOT_DEV = parse_root_device(saved_root_name);
 
 	if (initrd_load(saved_root_name))
