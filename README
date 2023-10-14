@@ -7,7 +7,7 @@
 ### x86_64
 
 ```bash
-make weichao_x86_64_defconfig
+make CC=clang weichao_x86_64_defconfig
 ```
 
 如果要，写到 `arch/x86/configs/weichao_x86_64_defconfig`
@@ -28,7 +28,6 @@ make ARCH=arm64 -j$(nproc)
 用buildroot编译会自动构建arm的编译器套件
 
 ### x86保存.config
-
 
 ```bash
 make savedefconfig
