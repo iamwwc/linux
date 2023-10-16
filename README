@@ -39,3 +39,10 @@ cp defconfig arch/x86/configs/weichao_x86_64_defconfig
 ```bash
 qemu-system-x86_64 --kernel ./arch/x86/boot/bzImage -initrd ./rootfs.cpio -device e1000,netdev=eth0 -netdev user,id=eth0,hostfwd=tcp::5555-:22,net=192.168.76.0/24,dhcpstart=192.168.76.9  -append "nokaslr console=ttyS0" -S -nographic -gdb tcp::1234 -virtfs local,path=/,security_model=none,mount_tag=guestroot
 ```
+
+
+kernel-dev 以 workspace 后，第一个debug config总是linux/，而预期使用buildroot/的文件系统，行为不符合预期，引入干扰
+
+所以linux/ 默认不使用launch.json，
+
+单独调试 linux/ 再将 `..vscode` 改为 `.vscode`
