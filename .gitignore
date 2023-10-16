@@ -104,6 +104,7 @@ modules.order
 !.mailmap
 !.rustfmt.toml
 !.vscode
+!..vscode
 
 #
 # Generated include files
