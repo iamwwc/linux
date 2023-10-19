@@ -495,6 +495,7 @@ static inline int neigh_hh_output(const struct hh_cache *hh, struct sk_buff *skb
 	do {
 		seq = read_seqbegin(&hh->hh_lock);
 		hh_len = READ_ONCE(hh->hh_len);
+		// CC SKB buffer调整head，留出16字节放MAC地址
 		if (likely(hh_len <= HH_DATA_MOD)) {
 			hh_alen = HH_DATA_MOD;
 
@@ -522,7 +523,9 @@ static inline int neigh_hh_output(const struct hh_cache *hh, struct sk_buff *skb
 		return NET_XMIT_DROP;
 	}
 
+	// CC skb data指针前移16
 	__skb_push(skb, hh_len);
+	// 提交skb到网络设备层
 	return dev_queue_xmit(skb);
 }
 

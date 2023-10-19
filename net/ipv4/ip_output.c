@@ -121,9 +121,10 @@ int __ip_local_out(struct net *net, struct sock *sk, struct sk_buff *skb)
 int ip_local_out(struct net *net, struct sock *sk, struct sk_buff *skb)
 {
 	int err;
-
+	// CC-NET走netfilter hook OUTPUT
 	err = __ip_local_out(net, sk, skb);
 	if (likely(err == 1))
+	// 再走POSTROUTING
 		err = dst_output(net, sk, skb);
 
 	return err;
@@ -215,7 +216,8 @@ static int ip_finish_output2(struct net *net, struct sock *sk, struct sk_buff *s
 		if (!skb)
 			return -ENOMEM;
 	}
-
+	// CC-NETlight weight tunnel，类似vxlan
+	// IP层基于LABEL转发给下一台机器
 	if (lwtunnel_xmit_redirect(dst->lwtstate)) {
 		int res = lwtunnel_xmit(skb);
 
@@ -224,12 +226,15 @@ static int ip_finish_output2(struct net *net, struct sock *sk, struct sk_buff *s
 	}
 
 	rcu_read_lock();
+	// CC-NET查找ARP缓存
+	// 找到下一跳MAC地址
 	neigh = ip_neigh_for_gw(rt, skb, &is_v6gw);
 	if (!IS_ERR(neigh)) {
 		int res;
 
 		sock_confirm_neigh(skb, neigh);
 		/* if crossing protocols, can not use the cached header */
+		// CC-NET继续发送
 		res = neigh_output(neigh, skb, is_v6gw);
 		rcu_read_unlock();
 		return res;
@@ -293,7 +298,8 @@ static int ip_finish_output_gso(struct net *net, struct sock *sk,
 static int __ip_finish_output(struct net *net, struct sock *sk, struct sk_buff *skb)
 {
 	unsigned int mtu;
-
+	// CC-NETxfrm is an IP framework for transforming packets (such as encrypting their payloads). 
+	// This framework is used to implement the IPsec protocol suite
 #if defined(CONFIG_NETFILTER) && defined(CONFIG_XFRM)
 	/* Policy lookup after SNAT yielded a new policy */
 	if (skb_dst(skb)->xfrm) {
@@ -301,20 +307,21 @@ static int __ip_finish_output(struct net *net, struct sock *sk, struct sk_buff *
 		return dst_output(net, sk, skb);
 	}
 #endif
+	// CC-NET获取设备MTU
 	mtu = ip_skb_dst_mtu(sk, skb);
 	if (skb_is_gso(skb))
 		return ip_finish_output_gso(net, sk, skb, mtu);
-
+	// 如果发送的数据大于MTU，进行IP分包
 	if (skb->len > mtu || IPCB(skb)->frag_max_size)
 		return ip_fragment(net, sk, skb, mtu, ip_finish_output2);
-
+	// 继续发送
 	return ip_finish_output2(net, sk, skb);
 }
 
 static int ip_finish_output(struct net *net, struct sock *sk, struct sk_buff *skb)
 {
 	int ret;
-
+	// 运行 BPF cgroup hook
 	ret = BPF_CGROUP_RUN_PROG_INET_EGRESS(sk, skb);
 	switch (ret) {
 	case NET_XMIT_SUCCESS:
@@ -427,7 +434,8 @@ int ip_output(struct net *net, struct sock *sk, struct sk_buff *skb)
 
 	skb->dev = dev;
 	skb->protocol = htons(ETH_P_IP);
-
+	// CC-NET执行POSTROUTING hook
+	// 如果确认发包，回调 ip_finish_output hook
 	return NF_HOOK_COND(NFPROTO_IPV4, NF_INET_POST_ROUTING,
 			    net, sk, skb, indev, dev,
 			    ip_finish_output,
@@ -468,6 +476,7 @@ int __ip_queue_xmit(struct sock *sk, struct sk_buff *skb, struct flowi *fl,
 	rcu_read_lock();
 	inet_opt = rcu_dereference(inet->inet_opt);
 	fl4 = &fl->u.ip4;
+	// 查找路由表
 	rt = skb_rtable(skb);
 	if (rt)
 		goto packet_routed;
@@ -530,7 +539,8 @@ packet_routed:
 	skb->priority = READ_ONCE(sk->sk_priority);
 	skb->mark = READ_ONCE(sk->sk_mark);
 
-	res = ip_local_out(net, sk, skb);
+	// CC-NET将组装好的IP包发出去
+	res = ip_local_out(net, sk, skb);	
 	rcu_read_unlock();
 	return res;
 
