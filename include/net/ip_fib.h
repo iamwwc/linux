@@ -373,6 +373,15 @@ static inline int fib_lookup(struct net *net, struct flowi4 *flp,
 
 	flags |= FIB_LOOKUP_NOREF;
 	if (net->ipv4.fib_has_custom_rules)
+	// CC-NET 如果有策略路由(Policy-based routing (PBR))
+	// 进行PBR匹配
+	// 下面的fib_table_lookup查找的是 ip route show 展示的路由
+	// 也就是PBR的main routing table
+	// 所以不需要再调用fib_table_lookup
+	// ip rule list
+	// Priority: 32766, Selector: match anything, Action: lookup
+	// routing table main (ID 254).  The main table is the normal
+	// routing table containing all non-policy routes
 		return __fib_lookup(net, flp, res, flags);
 
 	rcu_read_lock();

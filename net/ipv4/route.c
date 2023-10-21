@@ -2301,7 +2301,7 @@ static int ip_route_input_slow(struct sk_buff *skb, __be32 daddr, __be32 saddr,
 		fl4.fl4_sport = 0;
 		fl4.fl4_dport = 0;
 	}
-
+	// CC-NET 查路由表
 	err = fib_lookup(net, &fl4, res, 0);
 	if (err != 0) {
 		if (!IN_DEV_FORWARD(in_dev))

@@ -1984,7 +1984,7 @@ static int __init inet_init(void)
 	/*
 	 *	Add all the base protocols.
 	 */
-
+	// CC-NET 添加ip上层协议handler
 	if (inet_add_protocol(&icmp_protocol, IPPROTO_ICMP) < 0)
 		pr_crit("%s: Cannot add ICMP protocol\n", __func__);
 	if (inet_add_protocol(&udp_protocol, IPPROTO_UDP) < 0)

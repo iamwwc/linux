@@ -1441,6 +1441,11 @@ bool fib_lookup_good_nhc(const struct fib_nh_common *nhc, int fib_flags,
 }
 
 /* should be called with rcu_read_lock */
+// CC-NET fib(forwarding information base)
+// 路由查找算法
+// default via 10.0.2.2 dev enp0s3
+// 10.0.2.0/24 dev enp0s3 proto kernel scope link src 10.0.2.15
+// 最长前缀匹配
 int fib_table_lookup(struct fib_table *tb, const struct flowi4 *flp,
 		     struct fib_result *res, int fib_flags)
 {

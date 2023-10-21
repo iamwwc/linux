@@ -191,7 +191,7 @@ void ip_protocol_deliver_rcu(struct net *net, struct sk_buff *skb, int protocol)
 
 resubmit:
 	raw = raw_local_deliver(skb, protocol);
-
+	// CC-NET 根据ip协议字段找到handler处理
 	ipprot = rcu_dereference(inet_protos[protocol]);
 	if (ipprot) {
 		if (!ipprot->no_policy) {
