@@ -387,7 +387,14 @@ static inline int fib_lookup(struct net *net, struct flowi4 *flp,
 	rcu_read_lock();
 
 	res->tclassid = 0;
-
+	// CC-NET 默认三张表
+	// local main default
+	// 这里只查了 main 和 default表，没有 local
+	// 如果开启策略路由，return __fib_lookup 返回
+	// 否则 local 合并到 main table执行
+	// 好处是代码尽量复用，如果用户不开启自定义rule，那么会有提升
+	// 开启后才将 local 从 main拆分出去 fib_trie_unmerge()
+	// https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=0ddcf43d5d4a03ded1ee3f6b3b72a0cbed4e90b1	
 	tb = rcu_dereference_rtnl(net->ipv4.fib_main);
 	if (tb)
 		err = fib_table_lookup(tb, flp, res, flags);

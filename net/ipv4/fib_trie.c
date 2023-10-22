@@ -1909,7 +1909,8 @@ struct fib_table *fib_trie_unmerge(struct fib_table *oldtb)
 	struct fib_alias *fa;
 	struct trie *lt;
 	t_key key = 0;
-
+	// CC-NET 将LOCAL table 从 MAIN table拆分出来
+	//
 	if (oldtb->tb_data == oldtb->__data)
 		return oldtb;
 
