@@ -1549,6 +1549,7 @@ static int ep_insert(struct eventpoll *ep, const struct epoll_event *event,
 
 	/* Initialize the poll table using the queue callback */
 	epq.epi = epi;
+	// CC-NET 注册epoll wait 回调
 	init_poll_funcptr(&epq.pt, ep_ptable_queue_proc);
 
 	/*

@@ -208,6 +208,7 @@ static int __pollwake(wait_queue_entry_t *wait, unsigned mode, int sync, void *k
 	return default_wake_function(&dummy_wait, mode, sync, key);
 }
 
+// CC-NET 注册到sock#sk_wq的waiter
 static int pollwake(wait_queue_entry_t *wait, unsigned mode, int sync, void *key)
 {
 	struct poll_table_entry *entry;

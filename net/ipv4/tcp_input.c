@@ -5032,6 +5032,7 @@ err:
 void tcp_data_ready(struct sock *sk)
 {
 	if (tcp_epollin_ready(sk, sk->sk_rcvlowat) || sock_flag(sk, SOCK_DONE))
+		// CC-NET 回调 net/core/sock.c#sock_def_readable
 		sk->sk_data_ready(sk);
 }
 
@@ -6018,6 +6019,8 @@ void tcp_rcv_established(struct sock *sk, struct sk_buff *skb)
 no_ack:
 			if (eaten)
 				kfree_skb_partial(skb, fragstolen);
+			// CC-NET 收到TCP数据，回调等候的函数
+			// 一般是epoll等
 			tcp_data_ready(sk);
 			return;
 		}

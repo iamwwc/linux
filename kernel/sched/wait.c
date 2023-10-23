@@ -103,7 +103,8 @@ static int __wake_up_common(struct wait_queue_head *wq_head, unsigned int mode,
 
 		if (flags & WQ_FLAG_BOOKMARK)
 			continue;
-
+		// CC-NET 回调waiter
+		// fs/select.c#pollwake
 		ret = curr->func(curr, mode, wake_flags, key);
 		if (ret < 0)
 			break;
