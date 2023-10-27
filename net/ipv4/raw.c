@@ -183,6 +183,7 @@ static int raw_v4_input(struct net *net, struct sk_buff *skb,
 
 			/* Not releasing hash table! */
 			if (clone)
+				// CC-NET 将 skb 送往socket
 				raw_rcv(sk, clone);
 		}
 	}
@@ -293,6 +294,7 @@ static int raw_rcv_skb(struct sock *sk, struct sk_buff *skb)
 	/* Charge it to the socket. */
 
 	ipv4_pktinfo_prepare(sk, skb);
+	// 将skb放入socket receive queue
 	if (sock_queue_rcv_skb_reason(sk, skb, &reason) < 0) {
 		kfree_skb_reason(skb, reason);
 		return NET_RX_DROP;

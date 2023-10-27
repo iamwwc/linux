@@ -1,8 +1,8 @@
 kernel-dev 以 workspace 后，第一个debug config总是linux/，而预期使用buildroot/的文件系统，行为不符合预期，引入干扰
 
-所以linux/ 默认不使用launch.json，
+所以 linux/ 默认不使用 launch.json，
 
-单独调试 linux/ 再打开
+单独调试 linux/ 再将 `.launch.json` 改为 `launch.json`
 
 Visual Studio Code project for Linux kernel sources
 ===================================================

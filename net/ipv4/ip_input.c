@@ -190,6 +190,7 @@ void ip_protocol_deliver_rcu(struct net *net, struct sk_buff *skb, int protocol)
 	int raw, ret;
 
 resubmit:
+	// CC-NET send to raw socket
 	raw = raw_local_deliver(skb, protocol);
 	// CC-NET 根据ip协议字段找到handler处理
 	ipprot = rcu_dereference(inet_protos[protocol]);

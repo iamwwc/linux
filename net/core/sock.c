@@ -505,10 +505,12 @@ int __sock_queue_rcv_skb(struct sock *sk, struct sk_buff *skb)
 
 	spin_lock_irqsave(&list->lock, flags);
 	sock_skb_set_dropcount(sk, skb);
+	// CC-NET 放入sock queue 尾部
 	__skb_queue_tail(list, skb);
 	spin_unlock_irqrestore(&list->lock, flags);
 
 	if (!sock_flag(sk, SOCK_DEAD))
+		// CC-NET 触发sock可读回调
 		sk->sk_data_ready(sk);
 	return 0;
 }
