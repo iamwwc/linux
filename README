@@ -1,6 +1,4 @@
-此仓库设计要求：
-
-> 脱离buildroot也能正常开发调试
+此仓库要求：脱离buildroot也能正常开发调试
 
 ## linux开发流程
 
@@ -10,7 +8,7 @@
 make CC=clang weichao_x86_64_defconfig
 ```
 
-如果要，写到 `arch/x86/configs/weichao_x86_64_defconfig`
+如果要写到 `arch/x86/configs/weichao_x86_64_defconfig`
 
 ### orangepi zero3
 
