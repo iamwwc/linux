@@ -51,3 +51,16 @@ kernel-dev 以 workspace 后，第一个debug config总是linux/，而预期使�
 
 - // CC-NET 
     网络代码CR
+
+## 开发tip
+### 复制某tag下的文件
+
+```bash
+git remote set-url origin git@github.com:iamwwc/linux
+git remote add git@github.com:torvalds/linux.git
+git fetch upstream --tags
+```
+
+vscode `ctrl + k ctrl + o` 快捷键 open file on remote from
+
+能够快速打开upstream 某个tag下的文件，方便分析代码复制url
