@@ -609,6 +609,9 @@ EXPORT_SYMBOL_GPL(inet_csk_get_port);
 static int inet_csk_wait_for_connect(struct sock *sk, long timeo)
 {
 	struct inet_connection_sock *icsk = inet_csk(sk);
+	// CC-NET
+	// CC-NET-TCP
+	// 宏展开是 get_current() 调用，获得当前task_struct 结构以便之后唤醒
 	DEFINE_WAIT(wait);
 	int err;
 
@@ -627,6 +630,9 @@ static int inet_csk_wait_for_connect(struct sock *sk, long timeo)
 	 * having to remove and re-insert us on the wait queue.
 	 */
 	for (;;) {
+		// CC-NET
+		// CC-NET-TCP
+		// 将当前函数的执行加入waiter，等候唤醒
 		prepare_to_wait_exclusive(sk_sleep(sk), &wait,
 					  TASK_INTERRUPTIBLE);
 		release_sock(sk);
@@ -672,18 +678,21 @@ struct sock *inet_csk_accept(struct sock *sk, int flags, int *err, bool kern)
 		goto out_err;
 
 	/* Find already established connection */
+	// CC-NET-TCP 如果队列为空，等待连接
 	if (reqsk_queue_empty(queue)) {
 		long timeo = sock_rcvtimeo(sk, flags & O_NONBLOCK);
 
 		/* If this is a non blocking socket don't sleep */
+		// CC-NET-TCP non-blocking 模式，返回EAGAIN
 		error = -EAGAIN;
 		if (!timeo)
 			goto out_err;
-
+		// CC-NET-TCP blocking模式，等待listener的sock接受新SYNC-RECV
 		error = inet_csk_wait_for_connect(sk, timeo);
 		if (error)
 			goto out_err;
 	}
+	// CC-NET-TCP 获得了新sock，accept返回
 	req = reqsk_queue_remove(queue, sk);
 	newsk = req->sk;
 

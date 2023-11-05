@@ -1747,7 +1747,7 @@ int tcp_v4_do_rcv(struct sock *sk, struct sk_buff *skb)
 		}
 	} else
 		sock_rps_save_rxhash(sk, skb);
-
+	// CC-NET-TCP TCP握手状态机
 	if (tcp_rcv_state_process(sk, skb)) {
 		rsk = sk;
 		goto reset;
@@ -2022,6 +2022,8 @@ int tcp_v4_rcv(struct sk_buff *skb)
 	th = (const struct tcphdr *)skb->data;
 	iph = ip_hdr(skb);
 lookup:
+	// CC-NET-TCP 到TCP层后，skb需要转换成socket
+	// 从 kernel 协议栈查找skb -> struct sk 映射
 	sk = __inet_lookup_skb(net->ipv4.tcp_death_row.hashinfo,
 			       skb, __tcp_hdrlen(th), th->source,
 			       th->dest, sdif, &refcounted);
@@ -2136,7 +2138,9 @@ process:
 	tcp_v4_fill_cb(skb, iph, th);
 
 	skb->dev = NULL;
-
+	// CC-NET-TCP skb对应的socket是 listener
+	// 比如tcp listening at 127.0.0.1:8080
+	// skb tcp destination 是本机的 listener port
 	if (sk->sk_state == TCP_LISTEN) {
 		ret = tcp_v4_do_rcv(sk, skb);
 		goto put_and_return;

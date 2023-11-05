@@ -774,6 +774,10 @@ int inet_accept(struct socket *sock, struct socket *newsock, int flags,
 	int err = -EINVAL;
 
 	/* IPV6_ADDRFORM can change sk->sk_prot under us. */
+	// CC-NET
+	// CC-NET-TCP
+	// ip层调用传输层accept
+	// tcpv4 inet_csk_accept
 	sk2 = READ_ONCE(sk1->sk_prot)->accept(sk1, flags, &err, kern);
 	if (!sk2)
 		return err;

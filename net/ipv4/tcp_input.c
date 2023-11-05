@@ -5032,7 +5032,7 @@ err:
 void tcp_data_ready(struct sock *sk)
 {
 	if (tcp_epollin_ready(sk, sk->sk_rcvlowat) || sock_flag(sk, SOCK_DONE))
-		// CC-NET 回调 net/core/sock.c#sock_def_readable
+		// CC-NET-TCP 回调 net/core/sock.c#sock_def_readable
 		sk->sk_data_ready(sk);
 }
 
@@ -6001,6 +6001,9 @@ void tcp_rcv_established(struct sock *sk, struct sk_buff *skb)
 			/* Bulk data transfer: receiver */
 			skb_dst_drop(skb);
 			__skb_pull(skb, tcp_header_len);
+			// CC-NET-TCP 将收到的skb放到sock
+			// 如果sk是listener，调用accept spawn 新sock
+			// 如果是已有
 			eaten = tcp_queue_rcv(sk, skb, &fragstolen);
 
 			tcp_event_data_recv(sk, skb);
@@ -6019,7 +6022,7 @@ void tcp_rcv_established(struct sock *sk, struct sk_buff *skb)
 no_ack:
 			if (eaten)
 				kfree_skb_partial(skb, fragstolen);
-			// CC-NET 收到TCP数据，回调等候的函数
+			// CC-NET-TCP 收到TCP数据，回调等候的函数
 			// 一般是epoll等
 			tcp_data_ready(sk);
 			return;
@@ -6601,6 +6604,11 @@ int tcp_rcv_state_process(struct sock *sk, struct sk_buff *skb)
 			WRITE_ONCE(tp->copied_seq, tp->rcv_nxt);
 		}
 		smp_mb();
+		// CC-NET-TCP 收到SYN TCP状态就已经是TCP_ESTABLISHED
+		// 此函数结尾检查是否有必要发送ack
+		// 有必要则发送
+		// 说明三次握手的代码和TCP之后正常收发数据的ack机制是一样的
+		// kernel 根据tcp#psk ==1 ?call socket buffer read : tcp 状态维护
 		tcp_set_state(sk, TCP_ESTABLISHED);
 		sk->sk_state_change(sk);
 
@@ -6736,6 +6744,7 @@ int tcp_rcv_state_process(struct sock *sk, struct sk_buff *skb)
 	}
 
 	/* tcp_data could move socket to TIME-WAIT */
+	// CC-NET-TCP 如有必要，发送ack
 	if (sk->sk_state != TCP_CLOSE) {
 		tcp_data_snd_check(sk);
 		tcp_ack_snd_check(sk);
