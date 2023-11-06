@@ -1894,6 +1894,10 @@ static int ep_poll(struct eventpoll *ep, struct epoll_event __user *events,
 		 * performance issue if a process is killed, causing all of its
 		 * threads to wake up without being removed normally.
 		 */
+		// CC-NET-EPOLL 和 accept 如出一辙
+		// 1. 在blocking的地方创建wait结构
+		// 2. 加入waitqueue
+		// 3. 等待sock#sk_data_ready回调被唤醒
 		init_wait(&wait);
 		wait.func = ep_autoremove_wake_function;
 
