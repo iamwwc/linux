@@ -45,6 +45,12 @@ kernel-dev 以 workspace 后，第一个debug config总是linux/，而预期使�
 
 单独调试 linux/ 再将 `..vscode` 改为 `.vscode`
 
+## 生成 compile commands
+
+```bash
+./scripts/clang-tools/gen_compile_commands.py
+```
+
 ## 代码分析
 
 注释开始标记
@@ -60,7 +66,7 @@ kernel-dev 以 workspace 后，第一个debug config总是linux/，而预期使�
 ### 复制某tag下的文件
 
 ```bash
-git remote set-url origin git@github.com:ichaogege/linux
+git remote set-url origin git@github.com:taikulawo/linux
 git remote add git@github.com:torvalds/linux.git
 git fetch upstream --tags
 ```
