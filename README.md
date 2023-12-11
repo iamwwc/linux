@@ -6,6 +6,7 @@
 
 ```bash
 make CC=clang weichao_x86_64_defconfig
+make CC=clang -j$(nproc)
 ```
 
 如果要写到 `arch/x86/configs/weichao_x86_64_defconfig`
@@ -25,7 +26,7 @@ make ARCH=arm64 -j$(nproc)
 
 用buildroot编译会自动构建arm的编译器套件
 
-### x86保存.config
+### x86保存 .config
 
 ```bash
 make savedefconfig
@@ -45,11 +46,12 @@ kernel-dev 以 workspace 后，第一个debug config总是linux/，而预期使�
 
 单独调试 linux/ 再将 `..vscode` 改为 `.vscode`
 
-## 生成 compile commands
+## 生成 compile_commands.json
 
 ```bash
 ./scripts/clang-tools/gen_compile_commands.py
 ```
+
 ## rebase upstream kernel
 
 lts: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git
@@ -81,6 +83,7 @@ git rebase -i 665
     epoll
 
 ## 开发tip
+
 ### 复制某tag下的文件
 
 ```bash
@@ -91,4 +94,4 @@ git fetch upstream --tags
 
 vscode `ctrl + k ctrl + o` 快捷键 open file on remote from
 
-能够快速打开upstream 某个tag下的文件，方便分析代码复制url
+能快速打开upstream 某个tag下的文件，方便分析代码复制url
