@@ -62,7 +62,11 @@ git remote add upstream git://git.kernel.org/pub/scm/linux/kernel/git/stable/lin
 # 先fetch tag
 git fetch upstream tag v6.6.5 --no-tags
 # 再 checkout 出分支
-git rebase upstream/v6.6.4
+git checkout tags/v6.6.5 -b 665
+# 回到master
+git checkout master
+# 合并 stable v6.6.5
+git rebase -i 665
 ```
 
 ## 代码分析
