@@ -50,6 +50,19 @@ kernel-dev 以 workspace 后，第一个debug config总是linux/，而预期使�
 ```bash
 ./scripts/clang-tools/gen_compile_commands.py
 ```
+## rebase upstream kernel
+
+lts: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git
+master branch: git://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git
+
+比如rebase lts 下的 v6.6.4
+
+```bash
+git remote add upstream git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git
+
+git fetch upstream tag v6.6.5 --no-tags
+git rebase upstream/v6.6.4
+```
 
 ## 代码分析
 
