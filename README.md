@@ -59,8 +59,9 @@ master branch: git://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git
 
 ```bash
 git remote add upstream git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git
-
+# 先fetch tag
 git fetch upstream tag v6.6.5 --no-tags
+# 再 checkout 出分支
 git rebase upstream/v6.6.4
 ```
 
